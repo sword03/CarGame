@@ -41,6 +41,7 @@ private:
     Ui::MainWindow *ui;
     HHOOK hhkLowLevelKybd;
     bool bWinKey;
+    QPixmap tempPix; //辅助画布
 };
 
 #endif // MAINWINDOW_H

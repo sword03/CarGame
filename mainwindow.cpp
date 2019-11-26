@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     carPos.setX(0);
     carPos.setY(0);
 
+    tempPix = QPixmap(5000, 5000);
+
     ui->setupUi(this);
 
     // Setup variables
@@ -174,11 +176,13 @@ QRect MainWindow::absRect(QRect rect){
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
-    QPainter painter(this);
-
+    // 双缓冲
+    tempPix.fill(QColor(128, 128, 128));
+    QPainter memPainter(&tempPix);
+    //QPainter memPainter(this);
     // 车身
-    setPainterForCar(painter);
-    painter.drawRect(absRect(QRect(50, 50, 200, 100))); //绘制矩形
+    setPainterForCar(memPainter);
+    memPainter.drawRect(absRect(QRect(50, 50, 200, 100))); //绘制矩形
 
     // 车头
     QPoint points[5] = {
@@ -188,19 +192,19 @@ void MainWindow::paintEvent(QPaintEvent *)
         absPos(QPoint(260 + 110, 150)),
         absPos(QPoint(260, 150))
     };
-    painter.drawPolygon(points, 5);
+    memPainter.drawPolygon(points, 5);
 
     // 车轮
-    setPainterForTire(painter);
+    setPainterForTire(memPainter);
     QPainterPath path;
     path.addEllipse(absRect(QRect(50, 170, 50, 50)));
     path.addEllipse(absRect(QRect(180, 170, 50, 50)));
     path.addEllipse(absRect(QRect(280, 170, 50, 50)));
-    painter.drawPath(path);
+    memPainter.drawPath(path);
 
 
     // 车门
-    setPainterForDoor(painter);
+    setPainterForDoor(memPainter);
     QPoint points2[5] = {
         absPos(QPoint(270, 70)),
         absPos(QPoint(270 + 25, 70)),
@@ -208,5 +212,8 @@ void MainWindow::paintEvent(QPaintEvent *)
         absPos(QPoint(270 + 50, 140)),
         absPos(QPoint(270, 140))
     };
-    painter.drawPolygon(points2, 5);
+    memPainter.drawPolygon(points2, 5);
+
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, tempPix);
 }
